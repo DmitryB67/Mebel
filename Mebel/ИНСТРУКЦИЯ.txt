@@ -1,0 +1,104 @@
+ИНСТРУКЦИЯ ПО ЗАПУСКУ ПРОЕКТА «МАГАЗИН МЕБЕЛИ» (Eclipse + MySQL)
+====================================================================
+
+Состав проекта Mebel
+--------------------
+  mebel.sql                         - скрипт создания и заполнения базы mebel
+  lib/mysql-connector-j-8.4.0.jar   - драйвер JDBC для MySQL (уже прописан в .classpath)
+  src/Database.java                 - подключение к MySQL
+  src/Client.java,  ClientDAO.java  - клиенты
+  src/Sotr.java,    SotrDAO.java    - сотрудники
+  src/Mebel.java,   MebelDAO.java   - мебель
+  src/Zakaz.java,   ZakazDAO.java   - заказы (с JOIN)
+  src/MainWindow.java               - главное окно (Swing, WindowBuilder)
+
+
+1. Запуск MySQL
+---------------
+XAMPP: откройте XAMPP Control Panel и нажмите Start напротив Apache и MySQL.
+Open Server: запустите Open Server и включите сервер (зелёный флажок),
+в настройках модулей должен быть выбран MySQL или MariaDB.
+
+
+2. Создание базы через phpMyAdmin (импорт mebel.sql)
+----------------------------------------------------
+1) Откройте в браузере http://localhost/phpmyadmin
+   (в Open Server: меню -> Дополнительно -> phpMyAdmin).
+2) Вверху выберите вкладку «Импорт».
+3) Нажмите «Выберите файл» и укажите файл mebel.sql из папки проекта Mebel.
+4) Кодировка файла - utf-8. Остальные настройки не меняйте.
+5) Нажмите «Импорт» (или «Вперёд») внизу страницы.
+6) Слева появится база mebel с таблицами clients, mebel, sotr, zakazy.
+
+Скрипт сам создаёт базу mebel (CREATE DATABASE IF NOT EXISTS), поэтому заранее
+создавать её не обязательно. Скрипт можно запускать повторно: он удаляет старые
+таблицы и создаёт их заново.
+
+Другой способ: создать базу mebel вручную (вкладка «Базы данных», сравнение
+utf8mb4_general_ci), открыть её, вкладка «SQL», вставить текст из mebel.sql
+и нажать «Вперёд».
+
+Просмотр связей: откройте базу mebel -> таблицу zakazy -> «Структура» ->
+«Связи» (или вверху «Ещё» -> «Дизайнер» для схемы всех таблиц).
+
+
+3. Открытие проекта в Eclipse
+-----------------------------
+Проект уже лежит в рабочей области C:\Users\nevermeow\Desktop\Pr3Mebel.
+Если запустить Eclipse с этой рабочей областью, проект Mebel будет в Package Explorer.
+Нажмите на проекте правой кнопкой -> Refresh (F5), чтобы Eclipse увидел новые файлы.
+
+Если проект не виден: File -> Import -> General -> Existing Projects into Workspace
+-> Select root directory: папка Mebel -> Finish.
+
+
+4. Подключение MySQL Connector/J
+--------------------------------
+Драйвер уже лежит в папке lib и подключён в файле .classpath.
+Проверить: правой кнопкой по проекту -> Build Path -> Configure Build Path ->
+вкладка Libraries -> там должен быть mysql-connector-j-8.4.0.jar.
+
+Если его нет (например, на другом компьютере):
+  Build Path -> Configure Build Path -> Libraries -> Classpath -> Add JARs...
+  -> Mebel/lib/mysql-connector-j-8.4.0.jar -> Apply and Close.
+  (Скачать драйвер можно на https://dev.mysql.com/downloads/connector/j/,
+   вариант Platform Independent.)
+
+
+5. Где указать имя пользователя и пароль MySQL
+----------------------------------------------
+Файл src/Database.java, строки:
+
+    private static final String URL = "jdbc:mysql://localhost:3306/mebel?...";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
+USER - имя пользователя MySQL, PASSWORD - пароль.
+
+XAMPP по умолчанию: пользователь root, пароль пустой "".
+Open Server: обычно root и пустой пароль, в некоторых версиях пароль "root"
+(посмотреть можно в настройках Open Server или в phpMyAdmin при входе).
+Если MySQL работает не на порту 3306, поменяйте порт в строке URL.
+
+
+6. Открытие интерфейса в WindowBuilder
+--------------------------------------
+Правой кнопкой по src/MainWindow.java -> Open With -> WindowBuilder Editor.
+Внизу редактора выберите вкладку Design.
+Слева видно дерево компонентов (Components): contentPane, tabbedPane,
+панели вкладок, JScrollPane, JTable, кнопки. Справа - свойства (Properties).
+В режиме Design таблицы пустые - данные загружаются только при запуске программы.
+
+Если пункта WindowBuilder Editor нет: Help -> Eclipse Marketplace ->
+найти «WindowBuilder» -> Install, затем перезапустить Eclipse.
+
+
+7. Запуск главного окна
+-----------------------
+1) Убедитесь, что MySQL запущен и база mebel импортирована.
+2) Правой кнопкой по MainWindow.java -> Run As -> Java Application.
+3) В консоли появится «Подключение к БД успешно!», откроется окно
+   «Информационная система «Магазин мебели»» с четырьмя вкладками.
+
+Если MySQL выключен, программа покажет окно «Ошибка» с сообщением
+«Не удалось подключиться к базе данных», а таблицы останутся пустыми.
